@@ -1,0 +1,54 @@
+version: '3.2'
+
+services:
+
+#  frontend:
+#    build: frontend
+#    ports:
+#      - 20080:80
+#    volumes:
+#      # Re-use local composer cache via host-volume
+#      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+#      # Mount source-code for development
+#      - ./:/app
+
+  backend:
+    build: backend
+    ports:
+      - 80:80
+    volumes:
+      # Re-use local composer cache via host-volume
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      # Mount source-code for development
+      - ./:/app
+
+  mysql:
+    container_name: yii2_sql
+    image: mysql:5.7.34
+    volumes:
+      - ./.docker/sql/:/var/lib/mysql
+      - ./.docker/mysql:/etc/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=yii
+      - MYSQL_USER=yii
+      - MYSQL_PASSWORD=yii
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      PMA_HOST: mysql
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: secret
+  #pgsql:
+  #  image: postgres:9.5
+  #  environment:
+  #    - POSTGRES_DB=yii2advanced
+  #    - POSTGRES_USER=yii2advanced
+  #    - POSTGRES_PASSWORD=secret
