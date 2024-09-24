@@ -20,7 +20,7 @@ var vm = new Vue({
     },
 
     mounted() {
-        this.reloadTask();
+        this.reloadTasks();
     },
 
     methods: {
@@ -39,7 +39,7 @@ var vm = new Vue({
 
             var self = this;
 
-            this.taskss.forEach(function (item, i) {
+            this.tasks.forEach(function (item, i) {
                 if (self.dateStart == '' && self.dateStop == '') {
                     self.tasks[i].isFiltered = false;
 

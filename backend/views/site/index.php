@@ -1,53 +1,74 @@
 <?php
 
+use common\models\Tasks;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\grid\ActionColumn;
+use yii\grid\GridView;
+
 /** @var yii\web\View $this */
+/** @var backend\models\TasksSearch $searchModel */
+/** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'My Yii Application';
+$this->title = 'Tasks';
+$this->params['breadcrumbs'][] = $this->title;
+
+$this->registerJsFile('/js/vue.min.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/vee-validate/vee-validate.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/vee-validate/locale/ru.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/uiv.min.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/vue-app/app.js', [ 'depends' => [yii\web\JqueryAsset::className()] ]);
 ?>
-<div class="site-index">
 
-    <div class="jumbotron text-center bg-transparent">
-        <h1 class="display-4">Congratulations!</h1>
+<div class="task-index" id='app'>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
+    <h1><?= Html::encode($this->title) ?> [{{ tasks.length }}]</h1>
 
-        <p><a class="btn btn-lg btn-success" href="https://www.yiiframework.com">Get started with Yii</a></p>
-    </div>
 
-    <div class="body-content">
+    <div>
 
-        <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+        <table class="table table-bordered">
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+            </thead>
 
-                <p><a class="btn btn-outline-secondary" href="https://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+            <tbody v-for='task in tasks' v-if="!task.isFiltered">
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.task_date }}</td>
+                <td>{{ task.descr }}</td>
+<!--                <td>{{ task.username }}</td>-->
+                <td>{{ task.user_id }}</td>
+                <td>
+                    <button class="btn btn-default btn-sm" type="button" @click="editTasks(task.id)"
+                            title="Редактировать">
+                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                    <button class="btn btn-default btn-sm" type="button" @click="deleteTasks(task.id)"
+                            title="Удалить">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                </td>
+            </tr>
+            </tbody>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+        </table>
 
-                <p><a class="btn btn-outline-secondary" href="https://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+        <p>
+            <a class="btn btn-primary" href="/"
+               @click.prevent="createTasksForm.show=true">Добавить</a>
+        </p>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
 
-                <p><a class="btn btn-outline-secondary" href="https://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
-            </div>
-        </div>
+
+
+
 
     </div>
 </div>
+
