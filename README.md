@@ -28,5 +28,3 @@ common/config  main-local.php
 Пользователей с ролью менеджер (логин / пароль): manager1 / 12345 , manager2 / 12345
 Пользователей с ролью юзер (логин / пароль): user1 / 12345 , user2 / 12345
 
-
-Страница проекта локально : ``http://localhost/admin/site/login ``
