@@ -1,6 +1,6 @@
 <?php
 
-namespace backend\controllers;
+namespace api\modules\v1\controllers;
 
 use common\models\Tasks;
 use backend\models\TasksSearch;

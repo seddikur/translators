@@ -7,30 +7,24 @@ $params = array_merge(
 );
 
 return [
-    'id' => 'app-backend',
+    'id' => 'app-frontend',
     'basePath' => dirname(__DIR__),
-    'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
-    'language' => 'ru-RU',
-    'modules' => [],
+    'controllerNamespace' => 'frontend\controllers',
     'components' => [
         'request' => [
-            'baseUrl' => '/admin',
+            'baseUrl' => '',
 //            'enableCookieValidation' => true,
 //            'enableCsrfValidation' => true,
 //            'cookieValidationKey' => '45ed697dtg8uhrg9eheg00j09',
-            'csrfParam' => '_csrf-backend',
-
         ],
         'user' => [
             'identityClass' => 'common\models\Users',
             'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
         'session' => [
-            //это имя сессионного файла cookie, используемого для входа в серверную часть
-//            'name' => 'advanced-backend',
-            'name' => 'info-site',
+            // this is the name of the session cookie used for login on the frontend
+            'name' => 'advanced-frontend',
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -49,12 +43,8 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'tasks'
-                ],
-                '/' => 'site/index',
-                '<action:\w+>' => 'site/<action>',
+                '' => 'site/index',
+                '<controller:\w+>/<action:\w+>/' => '<controller>/<action>',
             ],
         ],
 

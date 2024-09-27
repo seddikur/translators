@@ -2,6 +2,7 @@
 
 namespace backend\assets;
 
+use bestyii\bootstrap\icons\assets\BootstrapIconAsset;
 use yii\web\AssetBundle;
 
 /**
@@ -18,6 +19,7 @@ class AppAsset extends AssetBundle
     ];
     public $depends = [
         'yii\web\YiiAsset',
-        'yii\bootstrap5\BootstrapAsset',
+        'yii\bootstrap4\BootstrapAsset',
+//        BootstrapIconAsset::class
     ];
 }

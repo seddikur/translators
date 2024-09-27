@@ -4,7 +4,7 @@
 
 * Клонирование проекта `` git clone https://github.com/seddikur/translators.git``
 * Запуск Docker `` docker-compose up -d ``
-* Переход в контейнер  `` docker-compose exec -it backend bash ``
+* Переход в контейнер  `` docker-compose exec -it php bash ``
 * Запуск установки расширений yii2 `` composer install ``
 * Инициализация yii2 `` php init ``
 
@@ -13,7 +13,7 @@ common/config  main-local.php
 ````
  'db' => [
             'class' => \yii\db\Connection::class,
-            'dsn' => 'mysql:host=mysql;dbname=yii',
+              'dsn' => 'mysql:host=translators-db-1;dbname=yii',
             'username' => 'root',
             'password' => 'secret',
             'charset' => 'utf8',

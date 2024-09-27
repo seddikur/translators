@@ -6,11 +6,11 @@ var vm = new Vue({
     el: '#app',
     data: {
         tasks: [],
-        createTasksForm: {
+        createTaskForm: {
             show: false,        // Признак активности модального окна "Создание заказа"
             descr: 'заказ',
         },
-        editTasksForm: {
+        editTaskForm: {
             show: false,        // Признак активности модального окна "Редактирование заказа"
             id: -1,
             descr: '',
@@ -28,7 +28,7 @@ var vm = new Vue({
         // Фильтр по дате размещения
 
         applyFilter: function () {
-
+            console.log('applyFilter');
             // Меняем даты местами, если это необходимо
 
             if ((this.dateStop != '' && this.dateStart != '') && this.dateStop < this.dateStart) {
@@ -84,6 +84,7 @@ var vm = new Vue({
         // Создание заказа
 
         createTask: function () {
+            console.log('createTask');
 
             var self = this;
 
