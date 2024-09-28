@@ -3,6 +3,11 @@
 /** @var yii\web\View $this */
 
 $this->title = 'My Yii Application';
+//$faker = \Faker\Factory::create() ->date($format = 'Y-m-d', $max = 'now');
+$faker = \Faker\Factory::create();
+//$faker = $faker->dateTimeBetween( '2014-09-23',  '2014-09-25');
+$faker = date_format( $faker->dateTimeBetween($startDate = '+10 days', $endDate = '+30 days'),"Y-m-d");
+\yii\helpers\VarDumper::dump($faker,10,true);
 ?>
 <div class="site-index">
     <div class="p-5 mb-4 bg-transparent rounded-3">

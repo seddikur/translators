@@ -26,7 +26,9 @@ class m240924_211712_create_tasks_table extends Migration
             'id' => $this->primaryKey()->unsigned()->notNull(),
             'task_date' => $this->date()->notNull()->comment('Дата создания'),
             'descr' => $this->string(255)->notNull()->comment('Описание'),
-            'user_id' => $this->integer(11)->notNull()->comment('Поручено пользователю'),
+            'date_completion' => $this->date()->comment('Дата выполнения'),
+            'time_completion' => $this->integer(11)->comment('Время выполнения'),
+            'user_id' => $this->integer(11)->comment('Испольнитель'),
         ], $tableOptions);
 
         $faker = \Faker\Factory::create();
@@ -34,9 +36,11 @@ class m240924_211712_create_tasks_table extends Migration
             $this->insert(
                 self::TABLE_NAME,
                 [
-                    'task_date' =>$faker->date($format = 'Y-m-d', $max = 'now'),
-                    'descr'         => 'состав заказа #'.$i,
-                    'user_id' => (int)rand(1, 4),
+                    'task_date' => '2024-09-21',
+                    'descr' => 'состав заказа #' . $i,
+//                    'user_id' => (int)rand(1, 4),
+                    'date_completion' => date_format($faker->dateTimeBetween($startDate = '+10 days', $endDate = '+30 days'), "Y-m-d"),
+                    'time_completion' => (int)rand(10, 30),
                 ]
             );
         }
