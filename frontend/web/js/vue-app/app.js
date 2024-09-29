@@ -66,7 +66,7 @@ var vm = new Vue({
             var self = this;
             $.ajax({
                 dataType: 'json',
-                url: '/tasks',
+                url: '/admin/api/tasks',
             })
                 .done(function (data) {
                     data.forEach(function (item, i) {
@@ -90,7 +90,7 @@ var vm = new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: '/tasks',
+                url: '/admin/api/tasks',
                 data: {descr: this.createTaskForm.descr}
             })
                 .done(function (data) {
@@ -114,7 +114,7 @@ var vm = new Vue({
 
             $.ajax({
                 method: 'PUT',
-                url: '/tasks/' + id,
+                url: '/admin/api/tasks/' + id,
                 data: {descr: this.editTaskForm.descr}
             })
                 .done(function (data) {
@@ -138,7 +138,7 @@ var vm = new Vue({
             // На UI не ориентируемся, берем из базы свежие данные, если их нет - сообщаем об этом
 
             $.ajax({
-                url: '/tasks/' + id,
+                url: '/admin/api/tasks' + id,
             })
                 .done(function (data) {
 
@@ -167,7 +167,7 @@ var vm = new Vue({
 
                     $.ajax({
                         method: 'DELETE',
-                        url: '/tasks/' + id,
+                        url: '/admin/api/tasks' + id,
                     })
                         .done(function (data) {
 

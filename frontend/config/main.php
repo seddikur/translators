@@ -44,9 +44,17 @@ return [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [
-                '' => 'site/index',
-                '<controller:\w+>/<action:\w+>/' => '<controller>/<action>',
+//            'rules' => [
+//                '' => 'site/index',
+//                '<controller:\w+>/<action:\w+>/' => '<controller>/<action>',
+//            ],
+                        'rules' => [
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'tasks'
+                ],
+                '/' => 'site/index',
+                '<action:\w+>' => 'site/<action>',
             ],
         ],
 

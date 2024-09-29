@@ -22,12 +22,12 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'pager' => [
-            'class' => 'yii\bootstrap5\LinkPager'
+            'class' => 'yii\bootstrap4\LinkPager'
         ],
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
+//            'id',
             'username',
 //            'auth_key',
 //            'password_hash',

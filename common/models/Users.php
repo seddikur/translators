@@ -95,7 +95,7 @@ class Users extends ActiveRecord implements IdentityInterface
             'email' => 'Email',
             'status' => 'Статус',
             'role' => 'Роль',
-            'busyness' => 'Занятость'
+            'busyness' => 'График работы'
         ];
     }
 

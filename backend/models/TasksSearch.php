@@ -17,8 +17,8 @@ class TasksSearch extends Tasks
     public function rules()
     {
         return [
-            [['id', 'user_id'], 'integer'],
-            [['task_date', 'descr'], 'safe'],
+            [['id', 'time_completion', 'user_id'], 'integer'],
+            [['task_date', 'descr', 'date_completion'], 'safe'],
         ];
     }
 
@@ -60,6 +60,8 @@ class TasksSearch extends Tasks
         $query->andFilterWhere([
             'id' => $this->id,
             'task_date' => $this->task_date,
+            'date_completion' => $this->date_completion,
+            'time_completion' => $this->time_completion,
             'user_id' => $this->user_id,
         ]);
 

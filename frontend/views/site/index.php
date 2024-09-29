@@ -1,57 +1,105 @@
 <?php
 
-/** @var yii\web\View $this */
+use yii\helpers\Html;
 
-$this->title = 'My Yii Application';
-//$faker = \Faker\Factory::create() ->date($format = 'Y-m-d', $max = 'now');
-$faker = \Faker\Factory::create();
-//$faker = $faker->dateTimeBetween( '2014-09-23',  '2014-09-25');
-$faker = date_format( $faker->dateTimeBetween($startDate = '+10 days', $endDate = '+30 days'),"Y-m-d");
-\yii\helpers\VarDumper::dump($faker,10,true);
+$this->title = 'Tasks';
+
+$this->registerJsFile('/js/vue.min.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/vee-validate/vee-validate.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/vee-validate/locale/ru.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/uiv.min.js', [ 'position' => $this::POS_HEAD ]);
+$this->registerJsFile('/js/vue-app/app.js', [ 'depends' => [yii\web\JqueryAsset::className()] ]);
+
 ?>
-<div class="site-index">
-    <div class="p-5 mb-4 bg-transparent rounded-3">
-        <div class="container-fluid py-5 text-center">
-            <h1 class="display-4">Congratulations!</h1>
-            <p class="fs-5 fw-light">You have successfully created your Yii-powered application.</p>
-            <p><a class="btn btn-lg btn-success" href="https://www.yiiframework.com">Get started with Yii</a></p>
-        </div>
-    </div>
 
-    <div class="body-content">
+<div class="task-index" id='app'>
 
-        <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+    <h1><?= Html::encode($this->title) ?> [{{ tasks.length }}]</h1>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+<!--    <div id="filter-bar">-->
+<!--        <template>-->
+<!--            Фильтр по дате размещения: с-->
+<!--            <form class="form-inline">-->
+<!--                <dropdown class="form-group">-->
+<!--                    <div class="input-group">-->
+<!--                        <input class="form-control" type="text" name="date-start"-->
+<!--                               v-model="dateStart" v-validate="'date_format:YYYY-MM-DD'" data-vv-as="Дата с">-->
+<!--                        <div class="input-group-btn">-->
+<!--                            <btn class="dropdown-toggle"><i class="glyphicon glyphicon-calendar"></i></btn>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <template slot="dropdown">-->
+<!--                        <li>-->
+<!--                            <date-picker v-model="dateStart" :week-starts-with="1">-->
+<!--                        </li>-->
+<!--                    </template>-->
+<!--                </dropdown>-->
+<!--            </form>-->
+<!--            по-->
+<!--            <form class="form-inline">-->
+<!--                <dropdown class="form-group">-->
+<!--                    <div class="input-group">-->
+<!--                        <input class="form-control" type="text" name="date-stop" v-model="dateStop"-->
+<!--                               v-validate="'date_format:YYYY-MM-DD'" data-vv-as="Дата по">-->
+<!--                        <div class="input-group-btn">-->
+<!--                            <btn class="dropdown-toggle"><i class="glyphicon glyphicon-calendar"></i></btn>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <template slot="dropdown">-->
+<!--                        <li>-->
+<!--                            <date-picker v-model="dateStop" :week-starts-with="1">-->
+<!--                        </li>-->
+<!--                    </template>-->
+<!--                </dropdown>-->
+<!--            </form>-->
+<!--            <btn type="primary" disabled v-if="errors.any()">'Apply'</btn>-->
+<!--            <btn type="primary" @click="applyFilter()"-->
+<!--                 v-if="!errors.any()">Apply</btn>-->
+<!--        </template>-->
+<!--    </div>-->
+    <alert v-if="errors.has('date-start')" type="warning">{{ errors.first('date-start') }}</alert>
+    <alert v-if="errors.has('date-stop')" type="warning">{{ errors.first('date-stop') }}</alert>
 
-                <p><a class="btn btn-outline-secondary" href="https://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+    <div>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+        <table class="table table-btasked">
 
-                <p><a class="btn btn-outline-secondary" href="https://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+            </thead>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+            <tbody v-for='task in tasks' v-if="!task.isFiltered">
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.task_date }}</td>
+                <td>{{ task.descr }}</td>
+                <!--                <td>{{ task.username }}</td>-->
+                <td>{{ task.user_id }}</td>
+                <td>
+<!--                    <button class="btn btn-primary btn-sm" type="button" @click="editTask(task.id)"-->
+<!--                            title="Edit">-->
+<!--                        <i class="bi bi-pencil" aria-hidden="true"></i>-->
+<!--                    </button>-->
+<!--                    <button class="btn btn-primary btn-sm" type="button" @click="deleteTask(task.id)"-->
+<!--                            title="Delete">-->
+<!--                        <i class="bi bi-trash" aria-hidden="true"></i>-->
+<!--                    </button>-->
+                </td>
+            </tr>
+            </tbody>
 
-                <p><a class="btn btn-outline-secondary" href="https://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
-            </div>
-        </div>
+        </table>
+
+
+
+
+
 
     </div>
 </div>

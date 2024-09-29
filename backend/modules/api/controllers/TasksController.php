@@ -1,15 +1,12 @@
 <?php
 
-namespace api\modules\v1\controllers;
+namespace app\modules\api\controllers;
 
 use common\models\Tasks;
-use backend\models\TasksSearch;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\rest\ActiveController;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use Yii;
-use yii\filters\AccessControl;
 
 /**
  * REST контроллер заказов

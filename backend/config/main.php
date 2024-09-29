@@ -12,7 +12,9 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'language' => 'ru-RU',
-    'modules' => [],
+    'modules' => [
+        'api' => ['class' => \app\modules\api\ApiModule::class],
+        ],
     'components' => [
         'request' => [
             'baseUrl' => '/admin',
@@ -48,14 +50,6 @@ return [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'tasks'
-                ],
-                '/' => 'site/index',
-                '<action:\w+>' => 'site/<action>',
-            ],
         ],
 
     ],
