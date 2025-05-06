@@ -3,14 +3,15 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\grid\GridView;
+use common\models\Translator;
 
 /** @var yii\web\View $this */
 /** @var common\models\Tasks $model */
-/** @var yii\data\ActiveDataProvider $dataProviderUser */
+/** @var yii\data\ActiveDataProvider $dataProviderTranslator */
 
 
 $this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Tasks', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Задачи', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
@@ -19,11 +20,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+        <?= Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => 'Вы уверены, что хотите удалить этот элемент?',
                 'method' => 'post',
             ],
         ]) ?>
@@ -37,42 +38,51 @@ $this->params['breadcrumbs'][] = $this->title;
             'descr',
             'date_completion',
             'time_completion:datetime',
-            'user_id',
+            [
+                'attribute' => 'user_id',
+                'value' => function($model) {
+                    $translator = Translator::findOne($model->user_id);
+                    return $translator ? $translator->name : '';
+                },
+                'label' => 'Переводчик'
+            ],
         ],
     ]) ?>
     <?= GridView::widget([
-        'dataProvider' => $dataProviderUser,
+        'dataProvider' => $dataProviderTranslator,
         'pager' => [
             'class' => 'yii\bootstrap4\LinkPager'
         ],
+        'rowOptions' => function ($translator) use ($model) {
+            return [
+                'class' => $model->user_id == $translator->id ? 'table-success' : '',
+            ];
+        },
         'columns' => [
-//            ['class' => 'yii\grid\SerialColumn'],
-
             'id',
-            'username',
-            'role',
             [
-                'attribute' => 'busyness',
-                'value' => function ($data) {
-                    switch ($data->busyness) {
-                        case 1:
-                            return '<span class="badge rounded-pill bg-danger">пн-пт</span>';
-                        case 2:
-                            return '<span class="badge rounded-pill bg-warning">пн-вс</span>';
-                        default:
-                            return 'не указано';
+                'attribute' => 'name',
+                'value' => function ($data) use ($model) {
+                    $name = $data->name;
+                    if ($data->id == $model->user_id) {
+                        return Html::tag('span', $name, ['class' => 'badge bg-success']);
                     }
+                    return $name;
                 },
                 'format' => 'html'
             ],
-
             [
-                'label' => 'Расчетное время выполнения (дни)',
-                'value' => function ($data) use ($model) {
-                    return \common\models\Tasks::leadTime($model->id, $data->id);
-                },
+                'attribute' => 'type',
+                'value' => function ($data) {
+                    return Translator::getTypeList()[$data->type] ?? '';
+                }
             ],
-
+            [
+                'attribute' => 'available_days',
+                'value' => function ($data) {
+                    return Translator::getAvailableDaysList()[$data->available_days] ?? '';
+                }
+            ],
             [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{action}',
@@ -84,18 +94,9 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'id_user' => $data->id,
                                 'id' =>$model->id
                             ], ['class' => 'btn btn-xs btn-success task-appoint']);
-
-
                     },
                 ]
             ],
-
-//            [
-//                'class' => \yii\grid\ActionColumn::class,
-//                'urlCreator' => function ($action, Users $model, $key, $index, $column) {
-//                    return \yii\helpers\Url::toRoute([$action, 'id' => $model->id]);
-//                }
-//            ],
         ],
     ]); ?>
 

@@ -1,197 +1,129 @@
-Vue.use(VeeValidate, {
-    locale: 'ru',
-});
-
-var vm = new Vue({
-    el: '#app',
-    data: {
-        tasks: [],
-        createTaskForm: {
-            show: false,        // Признак активности модального окна "Создание заказа"
-            descr: 'заказ',
-        },
-        editTaskForm: {
-            show: false,        // Признак активности модального окна "Редактирование заказа"
-            id: -1,
-            descr: '',
-        },
-        dateStart: '',          // Начальная дата фильтра
-        dateStop: '',           // Конечная дата фильтра
-    },
-
-    mounted() {
-        this.reloadTasks();
-    },
-
-    methods: {
-
-        // Фильтр по дате размещения
-
-        applyFilter: function () {
-            console.log('applyFilter');
-            // Меняем даты местами, если это необходимо
-
-            if ((this.dateStop != '' && this.dateStart != '') && this.dateStop < this.dateStart) {
-                var tmp = this.dateStart;
-                this.dateStart = this.dateStop;
-                this.dateStop = tmp;
-            }
-
-            var self = this;
-
-            this.tasks.forEach(function (item, i) {
-                if (self.dateStart == '' && self.dateStop == '') {
-                    self.tasks[i].isFiltered = false;
-
-                } else if (self.dateStart == '' || self.dateStop == '') {
-                    if (self.dateStart == '' && self.dateStop != '' && item.task_date > self.dateStop) {
-                        self.tasks[i].isFiltered = true;
-                    } else if (self.dateStart != '' && self.dateStop == '' && item.task_date < self.dateStart) {
-                        self.tasks[i].isFiltered = true;
-                    } else {
-                        self.tasks[i].isFiltered = false;
-                    }
-
-                } else if (item.tasks_date < self.dateStart || item.task_date > self.dateStop) {
-                    self.tasks[i].isFiltered = true;
-                } else {
-                    self.tasks[i].isFiltered = false;
-                }
-            });
-        },
-
-        // Вывод списка заказов
-
-        reloadTasks: function () {
-            var self = this;
-            $.ajax({
-                dataType: 'json',
-                url: '/admin/api/tasks',
-            })
-                .done(function (data) {
-                    data.forEach(function (item, i) {
-                        data[i].isFiltered = false;
-                    });
-                    self.tasks = data;
-                    self.applyFilter();
-                })
-                .fail(function (data) {
-                    console.log(data);
-                });
-        },
-
-
-        // Создание заказа
-
-        createTask: function () {
-            console.log('createTask');
-
-            var self = this;
-
-            $.ajax({
-                method: 'POST',
-                url: '/admin/api/tasks',
-                data: {descr: this.createTaskForm.descr}
-            })
-                .done(function (data) {
-
-                    self.createTaskForm.show = false;
-                    self.reloadTask();
-                    self.notifySuccess('Создание завершено!');
-
-                })
-                .fail(function (data) {
-                    self.notifyWarning('Ошибка создания');
-                });
-
-        },
-
-        // Обновление заказа
-
-        updateTask: function (id) {
-
-            var self = this;
-
-            $.ajax({
-                method: 'PUT',
-                url: '/admin/api/tasks/' + id,
-                data: {descr: this.editTaskForm.descr}
-            })
-                .done(function (data) {
-
-                    self.editTaskForm.show = false;
-                    self.reloadTask();
-                    self.notifySuccess('Обновление завершено!');
-
-                })
-                .fail(function (data) {
-                    self.notifyWarning('Ошибка обновления');
-                });
-        },
-
-        // Редактирование заказа
-
-        editTask: function (id) {
-
-            var self = this;
-
-            // На UI не ориентируемся, берем из базы свежие данные, если их нет - сообщаем об этом
-
-            $.ajax({
-                url: '/admin/api/tasks' + id,
-            })
-                .done(function (data) {
-
-                    self.editTaskForm.descr = data.descr;
-                    self.editTaskForm.id = data.id;
-                    self.editTaskForm.show = true;
-
-                })
-                .fail(function (data) {
-                    self.notifyWarning('Ошибка чтения заказа');
-                });
-
-
-        },
-
-        // Удаление заказа
-
-        deleteTask: function (id) {
-
-            var self = this;
-
-            this.$confirm({
-                content: 'Удалить заказ № [' + id + ']?'
-            })
-                .then(function () {
-
-                    $.ajax({
-                        method: 'DELETE',
-                        url: '/admin/api/tasks' + id,
-                    })
-                        .done(function (data) {
-
-                            self.reloadTask();
-                            self.notifySuccess('Удаление завершено!');
-
-                        })
-                        .fail(function (data) {
-                            self.notifyWarning('Ошибка удаления');
-                        });
-                });
-        },
-
-        // Нотификаторы
-
-        notifySuccess: function (content) {
-            this.notify('success', content);
-        },
-        notifyWarning: function (content) {
-            this.notify('warning', content);
-        },
-        notify: function (type, content) {
-            this.$notify({type: type, content: content, placement: 'bottom-right', duration: 3000});
-        },
-
+// Инициализация Vue приложения
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем наличие элемента #app
+    const appElement = document.getElementById('app');
+    if (!appElement) {
+        console.error('Element #app not found!');
+        return;
     }
-})
+
+    // Проверяем, что Vue загружен
+    if (typeof Vue === 'undefined') {
+        console.error('Vue is not loaded!');
+        return;
+    }
+
+    // Инициализируем VeeValidate
+    if (typeof VeeValidate !== 'undefined') {
+        Vue.use(VeeValidate, {
+            locale: 'ru',
+        });
+    } else {
+        console.error('VeeValidate is not loaded!');
+        return;
+    }
+
+    // Создаем компонент
+    Vue.component('task-table', {
+        template: `
+            <div>
+                <h1>Заказы <span v-if="tasks.length">[{{ tasks.length }}]</span></h1>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th @click="sortBy('id')" :class="{ 'sort-asc': sortKey === 'id' && sortOrder === 'asc', 'sort-desc': sortKey === 'id' && sortOrder === 'desc' }">
+                                ID <i class="glyphicon" :class="sortIcon('id')"></i>
+                            </th>
+                            <th @click="sortBy('task_date')" :class="{ 'sort-asc': sortKey === 'task_date' && sortOrder === 'asc', 'sort-desc': sortKey === 'task_date' && sortOrder === 'desc' }">
+                                Date <i class="glyphicon" :class="sortIcon('task_date')"></i>
+                            </th>
+                            <th @click="sortBy('descr')" :class="{ 'sort-asc': sortKey === 'descr' && sortOrder === 'asc', 'sort-desc': sortKey === 'descr' && sortOrder === 'desc' }">
+                                Description <i class="glyphicon" :class="sortIcon('descr')"></i>
+                            </th>
+                            <th @click="sortBy('user_id')" :class="{ 'sort-asc': sortKey === 'user_id' && sortOrder === 'asc', 'sort-desc': sortKey === 'user_id' && sortOrder === 'desc' }">
+                                User <i class="glyphicon" :class="sortIcon('user_id')"></i>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="task in sortedTasks" :key="task.id">
+                            <td>{{ task.id }}</td>
+                            <td>{{ task.task_date }}</td>
+                            <td>{{ task.descr }}</td>
+                            <td>{{ task.user_id }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `,
+        data() {
+            return {
+                tasks: [],
+                sortKey: 'id',
+                sortOrder: 'asc'
+            }
+        },
+        computed: {
+            sortedTasks() {
+                if (!this.tasks || !this.tasks.length) {
+                    return [];
+                }
+                return [...this.tasks].sort((a, b) => {
+                    let aVal = a[this.sortKey];
+                    let bVal = b[this.sortKey];
+                    
+                    if (this.sortKey === 'task_date') {
+                        aVal = new Date(aVal);
+                        bVal = new Date(bVal);
+                    }
+                    
+                    if (aVal < bVal) {
+                        return this.sortOrder === 'asc' ? -1 : 1;
+                    }
+                    if (aVal > bVal) {
+                        return this.sortOrder === 'asc' ? 1 : -1;
+                    }
+                    return 0;
+                });
+            }
+        },
+        mounted() {
+            this.loadTasks();
+        },
+        methods: {
+            loadTasks() {
+                $.ajax({
+                    dataType: 'json',
+                    url: '/admin/api/tasks',
+                    success: (data) => {
+                        this.tasks = data;
+                    },
+                    error: (data) => {
+                        console.error('Error loading tasks:', data);
+                    }
+                });
+            },
+            sortBy(key) {
+                if (this.sortKey === key) {
+                    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+                } else {
+                    this.sortKey = key;
+                    this.sortOrder = 'asc';
+                }
+            },
+            sortIcon(key) {
+                if (this.sortKey !== key) {
+                    return 'glyphicon-sort';
+                }
+                return this.sortOrder === 'asc' ? 'glyphicon-sort-by-attributes' : 'glyphicon-sort-by-attributes-alt';
+            }
+        }
+    });
+
+    // Создаем экземпляр Vue
+    window.app = new Vue({
+        el: '#app'
+    });
+});

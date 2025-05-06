@@ -101,3 +101,32 @@ a.desc:after {
 {
     text-decoration: none;
 }
+
+.filter-controls {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.filter-controls input {
+    width: 120px;
+}
+
+.glyphicon-sort {
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.glyphicon-sort:hover {
+    color: #337ab7;
+}
+
+.filter-controls {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.filter-controls input {
+    width: 120px;
+}

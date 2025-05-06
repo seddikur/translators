@@ -34,43 +34,6 @@ class TasksController extends ActiveController
                     'actions' => ['index', 'error', 'view', 'update', 'create', 'delete'],
                     'allow' => true,
                 ],
-//                [
-//                    'actions' => ['index'],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//                ],
-//                [
-//                    'actions' => ['create'],
-//                    'allow' => true,
-//                    'roles' => ['@'],
-//                ],
-//                [
-//                    'actions' => ['view'],
-//                    'allow' => true,
-//                    'matchCallback' =>
-//                        function () {
-//                            return Yii::$app->user->can('orderRead', ['order' =>
-//                                $this->findModel(Yii::$app->request->get('id'))]);
-//                        },
-//                ],
-//                [
-//                    'actions' => ['update'],
-//                    'allow' => true,
-//                    'matchCallback' =>
-//                        function () {
-//                            return Yii::$app->user->can('orderUpdate', ['order' =>
-//                                $this->findModel(Yii::$app->request->get('id'))]);
-//                        },
-//                ],
-//                [
-//                    'actions' => ['delete'],
-//                    'allow' => true,
-//                    'matchCallback' =>
-//                        function () {
-//                            return Yii::$app->user->can('orderDelete', ['order' =>
-//                                $this->findModel(Yii::$app->request->get('id'))]);
-//                        },
-//                ],
             ],
         ];
         return $behaviors;
@@ -81,23 +44,31 @@ class TasksController extends ActiveController
      */
     public function actions()
     {
-
         $actions = parent::actions();
 
-        // index (каждому пользователю показываем свое, если только он не админ)
-
-        $actions['index']['prepareDataProvider'] =  function () {
+        $actions['index']['prepareDataProvider'] = function () {
+            $query = Tasks::find()
+                ->with('translator');
+            
+            // Получаем параметры фильтрации
+            $dateStart = \Yii::$app->request->get('dateStart');
+            $dateStop = \Yii::$app->request->get('dateStop');
+            
+            if ($dateStart) {
+                $query->andWhere(['>=', 'task_date', $dateStart]);
+            }
+            
+            if ($dateStop) {
+                $query->andWhere(['<=', 'task_date', $dateStop]);
+            }
+            
             return new ActiveDataProvider([
-//                'query' => (\Yii::$app->user->can('admin') ? Tasks::find()->with('users') :
-//                    Tasks::find()->with('users')->where(['user_id' => \Yii::$app->user->id])),
-                'query' =>  Tasks::find(),
+                'query' => $query,
             ]);
         };
 
         return $actions;
     }
-
-
 
     /**
      * Finds the Tasks model based on its primary key value.

@@ -5,7 +5,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
-Use common\models\Users;
+use common\models\Users;
+use common\models\Translator;
 use bestyii\bootstrap\icons\assets\BootstrapIconAsset;
 
 /** @var yii\web\View $this */
@@ -14,7 +15,7 @@ use bestyii\bootstrap\icons\assets\BootstrapIconAsset;
 
 BootstrapIconAsset::register($this);
 
-$this->title = 'Tasks';
+$this->title = 'Задачи';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="tasks-index">
@@ -22,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Tasks', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Создать задачу', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
@@ -38,7 +39,14 @@ $this->params['breadcrumbs'][] = $this->title;
             'descr',
             'date_completion',
 //            'time_completion',
-            'user_id',
+            [
+                'attribute' => 'user_id',
+                'value' => function($model) {
+                    $translator = Translator::findOne($model->user_id);
+                    return $translator ? $translator->name : '';
+                },
+                'label' => 'Переводчик'
+            ],
 //            [
 //                'class' => ActionColumn::className(),
 //                'urlCreator' => function ($action, Tasks $model, $key, $index, $column) {
@@ -64,7 +72,5 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
         ],
     ]); ?>
-
-
 
 </div>

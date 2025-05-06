@@ -4,7 +4,7 @@ namespace backend\controllers;
 
 use common\models\Tasks;
 use backend\models\TasksSearch;
-use common\models\Users;
+use common\models\Translator;
 use yii\data\ActiveDataProvider;
 use yii\helpers\VarDumper;
 use yii\web\Controller;
@@ -12,7 +12,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * TasksController implements the CRUD actions for Tasks model.
+ * TasksController реализует CRUD действия для модели Tasks.
  */
 class TasksController extends Controller
 {
@@ -35,7 +35,7 @@ class TasksController extends Controller
     }
 
     /**
-     * Lists all Tasks models.
+     * Список всех моделей Tasks.
      *
      * @return string
      */
@@ -51,22 +51,22 @@ class TasksController extends Controller
     }
 
     /**
-     * Displays a single Tasks model.
+     * Отображает одну модель Tasks.
      * @param int $id ID
      * @return string
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException если модель не найдена
      */
     public function actionView($id)
     {
-        $dataProviderUser = new ActiveDataProvider([
-            'query' => Users::find()->where(['status' => 10])->orderBy('id DESC'),
+        $dataProviderTranslator = new ActiveDataProvider([
+            'query' => Translator::find()->orderBy('id DESC'),
             'pagination' => [
                 'pageSize' => 10,
             ],
         ]);
         return $this->render('view', [
             'model' => $this->findModel($id),
-            'dataProviderUser' => $dataProviderUser,
+            'dataProviderTranslator' => $dataProviderTranslator,
         ]);
     }
 
@@ -84,16 +84,16 @@ class TasksController extends Controller
             $model->user_id = $id_user;
             $model->save();
             if ($model->save()){
-                \Yii::$app->session->setFlash('info','Назначен ответственный -- '.$id_user);
+                $translator = Translator::findOne($id_user);
+                \Yii::$app->session->setFlash('info','Назначен ответственный -- '.$translator->name);
                 return $this->redirect(['view', 'id' => $id]);
             }
         }
-
     }
 
     /**
-     * Creates a new Tasks model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
+     * Создает новую модель Tasks.
+     * Если создание успешно, браузер будет перенаправлен на страницу 'view'.
      * @return string|\yii\web\Response
      */
     public function actionCreate()
@@ -114,11 +114,11 @@ class TasksController extends Controller
     }
 
     /**
-     * Updates an existing Tasks model.
-     * If update is successful, the browser will be redirected to the 'view' page.
+     * Обновляет существующую модель Tasks.
+     * Если обновление успешно, браузер будет перенаправлен на страницу 'view'.
      * @param int $id ID
      * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException если модель не найдена
      */
     public function actionUpdate($id)
     {
@@ -134,11 +134,11 @@ class TasksController extends Controller
     }
 
     /**
-     * Deletes an existing Tasks model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * Удаляет существующую модель Tasks.
+     * Если удаление успешно, браузер будет перенаправлен на страницу 'index'.
      * @param int $id ID
      * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException если модель не найдена
      */
     public function actionDelete($id)
     {
@@ -148,11 +148,11 @@ class TasksController extends Controller
     }
 
     /**
-     * Finds the Tasks model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
+     * Находит модель Tasks на основе значения первичного ключа.
+     * Если модель не найдена, будет выброшено исключение 404 HTTP.
      * @param int $id ID
-     * @return Tasks the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * @return Tasks загруженная модель
+     * @throws NotFoundHttpException если модель не найдена
      */
     protected function findModel($id)
     {
@@ -160,6 +160,6 @@ class TasksController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрашиваемая страница не существует.');
     }
 }

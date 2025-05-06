@@ -12,6 +12,7 @@ use yii\helpers\VarDumper;
  * @property string $task_date Дата создания
  * @property string $descr Описание
  * @property int $user_id Поручено пользователю
+ * @property Translator $translator Связанный переводчик
  */
 class Tasks extends \yii\db\ActiveRecord
 {
@@ -47,6 +48,16 @@ class Tasks extends \yii\db\ActiveRecord
             'descr' => 'Описание',
             'user_id' => 'Ответственный',
         ];
+    }
+
+    /**
+     * Gets query for [[Translator]]
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTranslator()
+    {
+        return $this->hasOne(Translator::class, ['id' => 'user_id']);
     }
 
     /** Расчет кол-ва дней в зависимости от графика работы ответственного
@@ -126,5 +137,17 @@ class Tasks extends \yii\db\ActiveRecord
         $interval = new \DateInterval($interval ? $interval : 'P1D');
 
         return iterator_to_array(new \DatePeriod($begin, $interval, $end));
+    }
+
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['translator'] = function($model) {
+            return $model->translator ? [
+                'id' => $model->translator->id,
+                'name' => $model->translator->name,
+            ] : null;
+        };
+        return $fields;
     }
 }
