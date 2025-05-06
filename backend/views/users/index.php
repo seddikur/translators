@@ -11,7 +11,7 @@ use yii\helpers\ArrayHelper;
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Users';
+$this->title = 'Пользователи';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -28,15 +28,22 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
 //            'id',
-            'username',
+            'username' => [
+                'attribute' => 'username',
+                'label' => 'Логин',
+            ],
 //            'auth_key',
 //            'password_hash',
 //            'password_reset_token',
-            'email:email',
+            'email:email' => [
+                'attribute' => 'email',
+                'label' => 'Email',
+            ],
             [
                 'class' => StatusColumn::class,
                 'attribute' => 'status',
                 'name' => 'statusName',
+                'label' => 'Статус',
                 'cssCLasses' => [
                     Users::STATUS_ACTIVE => 'success',
                     Users::STATUS_INACTIVE => 'warning',
@@ -46,23 +53,43 @@ $this->params['breadcrumbs'][] = $this->title;
             //'created_at',
             //'updated_at',
             //'verification_token',
-            'role',
-            [
-                'attribute' => 'busyness',
-                'value' => function ($data) {
-                    switch ($data->busyness) {
-                        case 1: return '<span class="badge rounded-pill bg-danger">пн-пт</span>';
-                        case 2: return '<span class="badge rounded-pill bg-warning">пн-вс</span>';
-                        default: return 'не указано';
-                    }
+            'role' => [
+                'attribute' => 'role',
+                'label' => 'Роль',
+                'value' => function ($model) {
+                    $roles = [
+                        \common\models\Users::Role_User => 'Пользователь',
+                        \common\models\Users::Role_Manager => 'Менеджер',
+                        \common\models\Users::Role_Admin => 'Администратор',
+                    ];
+                    return $roles[$model->role] ?? 'Неизвестная роль';
                 },
-                'format' => 'html'
             ],
+         
             [
                 'class' => ActionColumn::class,
+                'header' => 'Действия',
+                'template' => '{view} {update} {delete}',
+                'buttons' => [
+                    'view' => function ($url, $model) {
+                        return Html::a('<i class="fas fa-eye"></i>', $url, ['title' => 'Просмотр']);
+                    },
+                    'update' => function ($url, $model) {
+                        return Html::a('<i class="fas fa-pencil-alt"></i>', $url, ['title' => 'Редактировать']);
+                    },
+                    'delete' => function ($url, $model) {
+                        return Html::a('<i class="fas fa-trash"></i>', $url, [
+                            'title' => 'Удалить',
+                            'data' => [
+                                'confirm' => 'Вы уверены, что хотите удалить этого пользователя?',
+                                'method' => 'post',
+                            ],
+                        ]);
+                    },
+                ],
                 'urlCreator' => function ($action, Users $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                }
             ],
         ],
     ]); ?>

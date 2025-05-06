@@ -15,10 +15,10 @@ use common\models\Users;
 
     <div class="row">
         <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3">
-            <?= $form->field($model, 'busyness')->dropDownList(Users::getBusynessArray()) ?>
+            <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
 
             <div class="form-group">
-                <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>
             </div>
         </div>
     </div>

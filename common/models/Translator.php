@@ -140,4 +140,50 @@ class Translator extends ActiveRecord
 
         return $dataProvider;
     }
+
+    /**
+     * Получить статистику по переводчикам
+     * @return array
+     */
+    public static function getStats()
+    {
+        // Старый вариант с ActiveQuery
+        /*
+        return [
+            'total' => self::find()->count(),
+            'fullTime' => self::find()->where(['type' => self::TYPE_FULL_TIME])->count(),
+            'partTime' => self::find()->where(['type' => self::TYPE_PART_TIME])->count(),
+            'weekdays' => self::find()->where(['available_days' => self::DAYS_WEEKDAYS])->count(),
+            'weekends' => self::find()->where(['available_days' => self::DAYS_WEEKENDS])->count(),
+        ];
+        */
+
+        // Новый вариант с SQL-запросами
+        $sql = "
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN type = :full_time THEN 1 ELSE 0 END) as full_time,
+                SUM(CASE WHEN type = :part_time THEN 1 ELSE 0 END) as part_time,
+                SUM(CASE WHEN available_days = :weekdays THEN 1 ELSE 0 END) as weekdays,
+                SUM(CASE WHEN available_days = :weekends THEN 1 ELSE 0 END) as weekends
+            FROM {{%translators}}
+        ";
+
+        $params = [
+            ':full_time' => self::TYPE_FULL_TIME,
+            ':part_time' => self::TYPE_PART_TIME,
+            ':weekdays' => self::DAYS_WEEKDAYS,
+            ':weekends' => self::DAYS_WEEKENDS,
+        ];
+
+        $result = Yii::$app->db->createCommand($sql, $params)->queryOne();
+
+        return [
+            'total' => (int)$result['total'],
+            'fullTime' => (int)$result['full_time'],
+            'partTime' => (int)$result['part_time'],
+            'weekdays' => (int)$result['weekdays'],
+            'weekends' => (int)$result['weekends'],
+        ];
+    }
 } 

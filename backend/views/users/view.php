@@ -6,8 +6,8 @@ use yii\widgets\DetailView;
 /** @var yii\web\View $this */
 /** @var \common\models\Users $model */
 
-$this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Users', 'url' => ['index']];
+$this->title = $model->username;
+$this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
@@ -16,11 +16,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+        <?= Html::a('Редактировать', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => 'Вы уверены, что хотите удалить этого пользователя?',
                 'method' => 'post',
             ],
         ]) ?>
@@ -29,14 +29,42 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
-            'username',
-            'email:email',
-            'status',
-            'created_at:date',
-            'updated_at:date',
-            'role',
-            'busyness',
+            'id' => [
+                'attribute' => 'id',
+                'label' => 'ID',
+            ],
+            'username' => [
+                'attribute' => 'username',
+                'label' => 'Логин',
+            ],
+            'email:email' => [
+                'attribute' => 'email',
+                'label' => 'Email',
+            ],
+            'status' => [
+                'attribute' => 'status',
+                'label' => 'Статус',
+            ],
+            'created_at:date' => [
+                'attribute' => 'created_at',
+                'label' => 'Дата создания',
+            ],
+            'updated_at:date' => [
+                'attribute' => 'updated_at',
+                'label' => 'Дата обновления',
+            ],
+            'role' => [
+                'attribute' => 'role',
+                'label' => 'Роль',
+                'value' => function ($model) {
+                    $roles = [
+                        \common\models\Users::Role_User => 'Пользователь',
+                        \common\models\Users::Role_Manager => 'Менеджер',
+                        \common\models\Users::Role_Admin => 'Администратор',
+                    ];
+                    return $roles[$model->role] ?? 'Неизвестная роль';
+                },
+            ],
         ],
     ]) ?>
 

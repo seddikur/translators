@@ -150,4 +150,78 @@ class Tasks extends \yii\db\ActiveRecord
         };
         return $fields;
     }
+
+    /**
+     * Получить статистику по заказам
+     * @return array
+     */
+    public static function getStats()
+    {
+        // Старый вариант с ActiveQuery
+        /*
+        return [
+            'total' => self::find()->count(),
+        ];
+        */
+
+        // Новый вариант с SQL-запросом
+        $sql = "SELECT COUNT(*) as total FROM {{%tasks}}";
+        $result = Yii::$app->db->createCommand($sql)->queryOne();
+
+        return [
+            'total' => (int)$result['total'],
+        ];
+    }
+
+    /**
+     * Получить последние заказы
+     * @param int $limit
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public static function getRecent($limit = 5)
+    {
+        // Старый вариант с ActiveQuery
+        /*
+        return self::find()
+            ->with('translator')
+            ->orderBy(['task_date' => SORT_DESC])
+            ->limit($limit)
+            ->all();
+        */
+
+        // Новый вариант с SQL-запросом
+        $sql = "
+            SELECT 
+                t.id,
+                t.task_date,
+                t.descr,
+                t.user_id,
+                tr.name as translator_name
+            FROM {{%tasks}} t
+            LEFT JOIN {{%translators}} tr ON t.user_id = tr.id
+            ORDER BY t.task_date DESC
+            LIMIT :limit
+        ";
+
+        $result = Yii::$app->db->createCommand($sql, [':limit' => $limit])->queryAll();
+
+        // Преобразуем результат в модели
+        $tasks = [];
+        foreach ($result as $row) {
+            $task = new static();
+            // Явно устанавливаем атрибуты
+            $task->id = (int)$row['id'];
+            $task->task_date = $row['task_date'];
+            $task->descr = $row['descr'];
+            $task->user_id = (int)$row['user_id'];
+            
+            if (!empty($row['translator_name'])) {
+                $task->translator = new Translator();
+                $task->translator->name = $row['translator_name'];
+            }
+            $tasks[] = $task;
+        }
+
+        return $tasks;
+    }
 }

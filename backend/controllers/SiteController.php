@@ -3,6 +3,8 @@
 namespace backend\controllers;
 
 use common\models\LoginForm;
+use common\models\Tasks;
+use common\models\Translator;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
@@ -56,13 +58,20 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays homepage.
-     *
+     * Отображает главную страницу админ-панели
      * @return string
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $stats = [
+            'tasks' => Tasks::getStats(),
+            'translators' => Translator::getStats(),
+            'recentTasks' => Tasks::getRecent(),
+        ];
+        
+        return $this->render('index', [
+            'stats' => $stats,
+        ]);
     }
 
     /**
