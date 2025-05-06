@@ -37,3 +37,4 @@ phpunit.phar
 # ignore generated files
 .docker/sql
 
+/docker/mysql/mysql/
