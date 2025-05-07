@@ -32,6 +32,7 @@ class Translator extends ActiveRecord
 
     /**
      * {@inheritdoc}
+     * Возвращает имя таблицы в базе данных
      */
     public static function tableName()
     {
@@ -40,6 +41,7 @@ class Translator extends ActiveRecord
 
     /**
      * {@inheritdoc}
+     * Правила валидации для атрибутов модели
      */
     public function rules()
     {
@@ -56,6 +58,7 @@ class Translator extends ActiveRecord
 
     /**
      * {@inheritdoc}
+     * Метки атрибутов (названия полей)
      */
     public function attributeLabels()
     {
@@ -70,8 +73,8 @@ class Translator extends ActiveRecord
     }
 
     /**
-     * Получить список типов переводчиков
-     * @return array
+     * Получает список типов переводчиков с их русскими названиями
+     * @return array Массив типов переводчиков
      */
     public static function getTypeList()
     {
@@ -82,8 +85,8 @@ class Translator extends ActiveRecord
     }
 
     /**
-     * Получить список дней доступности
-     * @return array
+     * Получает список дней доступности с их русскими названиями
+     * @return array Массив дней доступности
      */
     public static function getAvailableDaysList()
     {
@@ -95,6 +98,7 @@ class Translator extends ActiveRecord
 
     /**
      * {@inheritdoc}
+     * Автоматически устанавливает даты создания и обновления перед сохранением
      */
     public function beforeSave($insert)
     {
@@ -109,9 +113,9 @@ class Translator extends ActiveRecord
     }
 
     /**
-     * Поиск переводчиков
-     * @param array $params
-     * @return ActiveDataProvider
+     * Поиск переводчиков с фильтрацией и пагинацией
+     * @param array $params Параметры поиска
+     * @return ActiveDataProvider Провайдер данных с результатами поиска
      */
     public function search($params)
     {
@@ -142,12 +146,17 @@ class Translator extends ActiveRecord
     }
 
     /**
-     * Получить статистику по переводчикам
-     * @return array
+     * Получает статистику по переводчикам
+     * @return array Массив со статистикой:
+     * - total: общее количество переводчиков
+     * - fullTime: количество переводчиков на полный день
+     * - partTime: количество переводчиков на частичную занятость
+     * - weekdays: количество переводчиков, работающих в будни
+     * - weekends: количество переводчиков, работающих в выходные
      */
     public static function getStats()
     {
-        // Старый вариант с ActiveQuery
+         //  вариант с ActiveQuery
         /*
         return [
             'total' => self::find()->count(),
@@ -157,8 +166,8 @@ class Translator extends ActiveRecord
             'weekends' => self::find()->where(['available_days' => self::DAYS_WEEKENDS])->count(),
         ];
         */
-
-        // Новый вариант с SQL-запросами
+        
+        // вариант с SQL-запросами
         $sql = "
             SELECT 
                 COUNT(*) as total,

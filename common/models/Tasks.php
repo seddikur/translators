@@ -22,6 +22,7 @@ class Tasks extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
+     * Устанавливает поведение модели, включая автоматическое заполнение даты создания
      */
     public function behaviors()
     {
@@ -37,6 +38,7 @@ class Tasks extends \yii\db\ActiveRecord
 
     /**
      * {@inheritdoc}
+     * Возвращает имя таблицы в базе данных
      */
     public static function tableName()
     {
@@ -45,6 +47,7 @@ class Tasks extends \yii\db\ActiveRecord
 
     /**
      * {@inheritdoc}
+     * Правила валидации для атрибутов модели
      */
     public function rules()
     {
@@ -58,6 +61,7 @@ class Tasks extends \yii\db\ActiveRecord
 
     /**
      * {@inheritdoc}
+     * Метки атрибутов (названия полей)
      */
     public function attributeLabels()
     {
@@ -72,8 +76,7 @@ class Tasks extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Translator]]
-     *
+     * Получает запрос для связи с моделью Translator
      * @return \yii\db\ActiveQuery
      */
     public function getTranslator()
@@ -81,11 +84,12 @@ class Tasks extends \yii\db\ActiveRecord
         return $this->hasOne(Translator::class, ['id' => 'user_id']);
     }
 
-    /** Расчет кол-ва дней в зависимости от графика работы ответственного
+    /**
+     * Расчет количества дней в зависимости от графика работы ответственного
      * от текущей даты
-     * @param $id_task
-     * @param $id_user
-     * @return false|int|string
+     * @param int $id_task ID задачи
+     * @param int $id_user ID пользователя
+     * @return false|int|string Количество дней или сообщение об ошибке
      * @throws \Exception
      */
     public static function leadTime($id_task, $id_user)
@@ -134,10 +138,11 @@ class Tasks extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param $begin
-     * @param $end
-     * @param $interval
-     * @return array
+     * Создает массив дат в указанном диапазоне
+     * @param string $begin Начальная дата
+     * @param string $end Конечная дата
+     * @param string|null $interval Интервал (по умолчанию P1D - один день)
+     * @return array Массив дат
      * @throws \Exception
      */
     public static function dateRange($begin, $end, $interval = null)
@@ -151,6 +156,10 @@ class Tasks extends \yii\db\ActiveRecord
         return iterator_to_array(new \DatePeriod($begin, $interval, $end));
     }
 
+    /**
+     * Определяет поля, которые будут возвращаться при сериализации модели
+     * @return array Массив полей
+     */
     public function fields()
     {
         $fields = parent::fields();
@@ -167,8 +176,8 @@ class Tasks extends \yii\db\ActiveRecord
     }
 
     /**
-     * Получить статистику по заказам
-     * @return array
+     * Получает статистику по заказам
+     * @return array Массив со статистикой
      */
     public static function getStats()
     {
@@ -189,28 +198,17 @@ class Tasks extends \yii\db\ActiveRecord
     }
 
     /**
-     * Получить последние заказы
-     * @param int $limit
-     * @return array|\yii\db\ActiveRecord[]
+     * Получает последние заказы
+     * @param int $limit Количество последних заказов
+     * @return array Массив последних заказов
      */
     public static function getRecent($limit = 5)
     {
-        // Старый вариант с ActiveQuery
-        /*
-        return self::find()
-            ->with('translator')
-            ->orderBy(['task_date' => SORT_DESC])
-            ->limit($limit)
-            ->all();
-        */
-
-        // Новый вариант с SQL-запросом
+        // вариант с SQL-запросом
         $sql = "
             SELECT 
-                t.id,
-                t.task_date,
-                t.descr,
-                t.user_id,
+                t.*,
+                tr.id as translator_id,
                 tr.name as translator_name
             FROM {{%tasks}} t
             LEFT JOIN {{%translators}} tr ON t.user_id = tr.id
@@ -229,11 +227,8 @@ class Tasks extends \yii\db\ActiveRecord
             $task->task_date = $row['task_date'];
             $task->descr = $row['descr'];
             $task->user_id = (int)$row['user_id'];
-            
-            if (!empty($row['translator_name'])) {
-                $task->translator = new Translator();
-                $task->translator->name = $row['translator_name'];
-            }
+            $task->date_completion = $row['date_completion'];
+            $task->time_completion = $row['time_completion'];
             $tasks[] = $task;
         }
 
