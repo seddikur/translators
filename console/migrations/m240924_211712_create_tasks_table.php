@@ -32,13 +32,13 @@ class m240924_211712_create_tasks_table extends Migration
         ], $tableOptions);
 
         $faker = \Faker\Factory::create();
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 150; $i++) {
             $this->insert(
                 self::TABLE_NAME,
                 [
                     'task_date' => '2024-09-21',
                     'descr' => 'состав заказа #' . $i,
-//                    'user_id' => (int)rand(1, 4),
+                    'user_id' => (int)rand(1, 40),
                     'date_completion' => date_format($faker->dateTimeBetween($startDate = '+10 days', $endDate = '+30 days'), "Y-m-d"),
                     'time_completion' => (int)rand(10, 30),
                 ]

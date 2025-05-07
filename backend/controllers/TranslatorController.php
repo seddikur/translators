@@ -4,6 +4,7 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Translator;
+use common\models\TranslatorSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -44,7 +45,7 @@ class TranslatorController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new Translator();
+        $searchModel = new TranslatorSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [

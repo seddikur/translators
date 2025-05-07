@@ -22,6 +22,9 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
+        'pager' => [
+            'class' => 'yii\bootstrap4\LinkPager'
+        ],
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
@@ -41,36 +44,28 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => Translator::getAvailableDaysList(),
             ],
-            [
-                'attribute' => 'created_at',
-                'value' => function ($model) {
-                    return Yii::$app->formatter->asDatetime($model->created_at);
-                },
-            ],
-            [
-                'attribute' => 'updated_at',
-                'value' => function ($model) {
-                    return Yii::$app->formatter->asDatetime($model->updated_at);
-                },
-            ],
+
 
             [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{view} {update} {delete}',
                 'buttons' => [
                     'view' => function ($url, $model) {
-                        return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url, [
+                        return Html::a('<i class="fas fa-eye"></i>', $url, [
                             'title' => 'Просмотр',
+                            'class' => 'btn btn-sm btn-info',
                         ]);
                     },
                     'update' => function ($url, $model) {
-                        return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url, [
+                        return Html::a('<i class="fas fa-edit"></i>', $url, [
                             'title' => 'Редактировать',
+                            'class' => 'btn btn-sm btn-primary',
                         ]);
                     },
                     'delete' => function ($url, $model) {
-                        return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+                        return Html::a('<i class="fas fa-trash"></i>', $url, [
                             'title' => 'Удалить',
+                            'class' => 'btn btn-sm btn-danger',
                             'data' => [
                                 'confirm' => 'Вы уверены, что хотите удалить этого переводчика?',
                                 'method' => 'post',

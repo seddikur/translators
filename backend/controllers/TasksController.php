@@ -59,11 +59,27 @@ class TasksController extends Controller
     public function actionView($id)
     {
         $dataProviderTranslator = new ActiveDataProvider([
-            'query' => Translator::find()->orderBy('id DESC'),
+            'query' => Translator::find(),
             'pagination' => [
                 'pageSize' => 10,
             ],
+            'sort' => [
+                'attributes' => [
+                    'id',
+                    'name',
+                    'type',
+                    'available_days',
+                    'leadTime' => [
+                        'asc' => ['type' => SORT_ASC],
+                        'desc' => ['type' => SORT_DESC],
+                        'label' => 'Время выполнения',
+                        'default' => SORT_ASC
+                    ],
+                ],
+                'defaultOrder' => ['id' => SORT_DESC]
+            ],
         ]);
+
         return $this->render('view', [
             'model' => $this->findModel($id),
             'dataProviderTranslator' => $dataProviderTranslator,
@@ -101,8 +117,12 @@ class TasksController extends Controller
         $model = new Tasks();
 
         if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+            if ($model->load($this->request->post())) {
+                if (!$model->save()) {
+                    \Yii::$app->session->setFlash('error', 'Ошибка при сохранении: ' . json_encode($model->errors, JSON_UNESCAPED_UNICODE));
+                } else {
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
             }
         } else {
             $model->loadDefaultValues();
@@ -124,8 +144,12 @@ class TasksController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            if (!$model->save()) {
+                \Yii::$app->session->setFlash('error', 'Ошибка при сохранении: ' . json_encode($model->errors, JSON_UNESCAPED_UNICODE));
+            } else {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [

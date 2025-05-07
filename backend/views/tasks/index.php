@@ -1,11 +1,7 @@
 <?php
 
-use common\models\Tasks;
 use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\grid\ActionColumn;
 use yii\grid\GridView;
-use common\models\Users;
 use common\models\Translator;
 use bestyii\bootstrap\icons\assets\BootstrapIconAsset;
 
@@ -31,6 +27,9 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
+        'pager' => [
+            'class' => 'yii\bootstrap4\LinkPager'
+        ],
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
@@ -55,10 +54,9 @@ $this->params['breadcrumbs'][] = $this->title;
 //            ],
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{view} ',
-                'headerOptions' => ['style' => 'width:5%'],
+                'template' => '{view} {update} {delete}',
+                'headerOptions' => ['style' => 'width:15%'],
                 'buttons' => [
-
                     'view' => function ($url, $model) {
                         return Html::a(
                             '<i class="bi bi-person-check-fill"></i>',
@@ -67,7 +65,28 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'style' => 'color: #0056b3 !important;',
                             ]);
                     },
-
+                    'update' => function ($url, $model) {
+                        return Html::a(
+                            '<i class="bi bi-pencil-fill"></i>',
+                            ['tasks/update', 'id' => $model->id],
+                            [
+                                'style' => 'color: #28a745 !important;',
+                                'title' => 'Редактировать',
+                            ]);
+                    },
+                    'delete' => function ($url, $model) {
+                        return Html::a(
+                            '<i class="bi bi-trash-fill"></i>',
+                            ['tasks/delete', 'id' => $model->id],
+                            [
+                                'style' => 'color: #dc3545 !important;',
+                                'title' => 'Удалить',
+                                'data' => [
+                                    'confirm' => 'Вы уверены, что хотите удалить этот элемент?',
+                                    'method' => 'post',
+                                ],
+                            ]);
+                    },
                 ],
             ],
         ],

@@ -36,7 +36,7 @@ class m250506_163358_create_translators_table extends Migration
         $faker = \Faker\Factory::create('ru_RU');
         $translatorTypes = ['full_time', 'part_time'];
 
-        for ($i = 0; $i < 30; $i++) {
+        for ($i = 0; $i < 90; $i++) {
             $type = $translatorTypes[array_rand($translatorTypes)];
             $days = ($type === 'full_time') ? 'weekdays' : 'weekends';
 

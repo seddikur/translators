@@ -4,6 +4,8 @@ namespace common\models;
 
 use Yii;
 use yii\helpers\VarDumper;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "tasks".
@@ -11,11 +13,28 @@ use yii\helpers\VarDumper;
  * @property int $id
  * @property string $task_date Дата создания
  * @property string $descr Описание
+ * @property string|null $date_completion Дата выполнения
+ * @property int|null $time_completion Время выполнения
  * @property int $user_id Поручено пользователю
  * @property Translator $translator Связанный переводчик
  */
 class Tasks extends \yii\db\ActiveRecord
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'task_date',
+                'updatedAtAttribute' => false,
+                'value' => new Expression('CURRENT_DATE'),
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -30,9 +49,9 @@ class Tasks extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['task_date', 'descr', 'user_id'], 'required'],
-            [['task_date'], 'safe'],
-            [['user_id'], 'integer'],
+            [['descr', 'user_id'], 'required'],
+            [['task_date', 'date_completion'], 'safe'],
+            [['user_id', 'time_completion'], 'integer'],
             [['descr'], 'string', 'max' => 255],
         ];
     }
@@ -45,6 +64,8 @@ class Tasks extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'task_date' => 'Дата создания',
+            'date_completion' => 'Дата выполнения',
+            'time_completion' => 'Время выполнения',
             'descr' => 'Описание',
             'user_id' => 'Ответственный',
         ];
@@ -70,9 +91,20 @@ class Tasks extends \yii\db\ActiveRecord
     public static function leadTime($id_task, $id_user)
     {
         $result = self::findOne(['id' => $id_task]);
+        if (!$result) {
+            return 'Задача не найдена';
+        }
+        
         $date_completion = $result['date_completion'];
-        $user = Users::find()->where(['id' => $id_user])->one();
-        $user_busyness = $user['busyness'];
+        $user = Translator::find()->where(['id' => $id_user])->one();
+        if (!$user) {
+            return 'Переводчик не найден';
+        }
+        
+        $user_busyness = $user['type'] ?? null;
+        if ($user_busyness === null) {
+            return 'Не указан тип занятости переводчика';
+        }
 
         $now_date = date('Y-m-d', time());
         //разница дней арифметически $timeDiff/86400
@@ -83,16 +115,6 @@ class Tasks extends \yii\db\ActiveRecord
 
         $dates = self::dateRange($now_date, $date_completion);
         $day_sundays = 0;
-//        $weekends = array_filter($dates, function ($date) {
-//            $day = $date->format("N");
-//
-//            return $day === '6' || $day === '7';
-//        });
-
-        /* weekdays output */
-//        foreach ($weekends as $date) {
-//            echo $date->format("D Y-m-d") . "</br>";
-//        }
 
         /* define sundays */
         $sundays = array_filter($dates, function ($date) {
@@ -102,21 +124,11 @@ class Tasks extends \yii\db\ActiveRecord
         /* sundays output */
         foreach ($sundays as $date) {
             $day_sundays ++;
-//            echo $date->format("D Y-m-d") . "</br>";
         }
-//
-//        /* define mondays */
-//        $mondays = array_filter($dates, function ($date) {
-//            return $date->format("N") === '1';
-//        });
-//
-//        /* mondays output */
-//        foreach ($mondays as $date) {
-//            echo $date->format("D Y-m-d") . "</br>";
-//        }
+
         switch ($user_busyness) {
-            case 1: return $interval->days;
-            case 2: return $interval->days-$day_sundays;
+            case Translator::TYPE_FULL_TIME: return $interval->days;
+            case Translator::TYPE_PART_TIME: return $interval->days-$day_sundays;
             default: return 'не указано';
         }
     }
@@ -147,6 +159,9 @@ class Tasks extends \yii\db\ActiveRecord
                 'id' => $model->translator->id,
                 'name' => $model->translator->name,
             ] : null;
+        };
+        $fields['leadTime'] = function($model) {
+            return self::leadTime($model->id, $model->user_id);
         };
         return $fields;
     }

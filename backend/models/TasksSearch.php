@@ -46,6 +46,23 @@ class TasksSearch extends Tasks
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'attributes' => [
+                    'id',
+                    'task_date',
+                    'descr',
+                    'date_completion',
+                    'time_completion',
+                    'user_id',
+                    'leadTime' => [
+                        'asc' => ['user_id' => SORT_ASC],
+                        'desc' => ['user_id' => SORT_DESC],
+                        'label' => 'Время выполнения',
+                        'default' => SORT_ASC
+                    ],
+                ],
+                'defaultOrder' => ['id' => SORT_DESC]
+            ],
         ]);
 
         $this->load($params);

@@ -38,3 +38,4 @@ phpunit.phar
 .docker/sql
 
 /docker/mysql/mysql/
+/docker/mysql/
